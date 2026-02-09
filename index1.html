@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para mi universo entero</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@300;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root {
+    --pink: #ff758f; /* Un rosa más dulce para Milo J */
+    --dark-pink: #ff4d6d;
+}
+
+body {
+    margin: 0;
+    background: #020205;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Quicksand', sans-serif;
+}
+
+/* --- UNIVERSO --- */
+#universe {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: #05050a;
+}
+
+.nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.35;
+    mix-blend-mode: screen;
+    animation: nebulaMove 30s infinite alternate ease-in-out;
+}
+
+@keyframes nebulaMove {
+    from { transform: translate(0,0) scale(1); }
+    to { transform: translate(100px, 50px) scale(1.2); }
+}
+
+.jupiter {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    left: -150px;
+    bottom: -50px;
+    background: linear-gradient(135deg, #a36b4f 0%, #704231 20%, #4e342e 50%, #211513 80%, #0a0605 100%);
+    border-radius: 50%;
+    box-shadow: inset -40px -40px 100px rgba(0,0,0,0.9), 0 0 60px rgba(163, 107, 79, 0.15);
+    z-index: 2;
+}
+
+.mountains {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 25vh;
+    background: #0a0a0e;
+    clip-path: polygon(0% 100%, 0% 70%, 5% 75%, 15% 65%, 25% 80%, 35% 60%, 50% 75%, 65% 55%, 80% 85%, 90% 65%, 100% 75%, 100% 100%);
+    z-index: 4;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d) infinite ease-in-out;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.4); }
+}
+
+/* --- SOBRE --- */
+.envelope-wrapper {
+    position: relative;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.envelope {
+    position: relative;
+    width: 320px;
+    height: 200px;
+    background: var(--dark-pink);
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 25px 50px rgba(0,0,0,.7);
+    transition: opacity .6s ease;
+}
+
+.envelope::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    border-left: 160px solid transparent;
+    border-right: 160px solid transparent;
+    border-top: 125px solid var(--pink);
+    transform-origin: top;
+    transition: transform .6s ease;
+}
+
+.envelope.open::before { transform: rotateX(180deg); }
+.envelope.hide { opacity: 0; pointer-events: none; }
+
+.to-text {
+    position: absolute;
+    bottom: 10px; right: 14px;
+    color: white; font-size: 13px; font-style: italic; opacity: .9;
+}
+
+.heart-seal {
+    position: absolute;
+    top: 45%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 45px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse { 50% { transform: translate(-50%, -50%) scale(1.15); } }
+
+/* --- CARTA --- */
+.letter {
+    position: absolute;
+    bottom: 5px; left: 50%;
+    transform: translateX(-50%);
+    width: 320px; height: 150px;
+    background: #fffafa;
+    padding: 25px;
+    border-radius: 12px;
+    opacity: 0;
+    z-index: 11;
+    transition: all .9s cubic-bezier(.2,.8,.3,1.2);
+    box-sizing: border-box;
+    box-shadow: 0 0 40px rgba(255,255,255,.25);
+    overflow: hidden;
+}
+
+.letter.reveal {
+    bottom: 35px; height: 440px; opacity: 1;
+}
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .8s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+h2 { font-family: 'Dancing Script', cursive; color: var(--dark-pink); font-size: 2.2rem; margin-top: 0; }
+.timer-display { background: #fff0f3; padding: 10px; border-radius: 15px; margin: 10px 0; font-weight: bold; color: var(--dark-pink); font-size: 0.9rem; text-align: center;}
+.btn-next { background: var(--dark-pink); color: #fff; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;}
+.final-text { font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: var(--dark-pink); }
+
+/* --- FOTOS --- */
+#photo-gallery {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+
+#photo-gallery.visible { opacity: 1; }
+
+.memory-photo {
+    position: absolute;
+    width: 110px;
+    height: auto;
+    border: 4px solid #fff;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.5);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+#photo-gallery.visible .memory-photo {
+    opacity: 0.95;
+    transform: scale(1) rotate(var(--r));
+}
+
+.p1 { top: 10%; left: 10%; --r: -15deg; }
+.p2 { top: 15%; right: 10%; --r: 12deg; }
+.p3 { top: 40%; left: 5%; --r: -8deg; }
+.p4 { top: 45%; right: 5%; --r: 10deg; }
+.p5 { bottom: 15%; left: 15%; --r: -12deg; }
+.p6 { bottom: 10%; right: 15%; --r: 15deg; }
+
+@media (max-width: 768px) {
+    .memory-photo { width: 80px; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="universe">
+    <div class="nebula" style="width: 800px; height: 800px; background: #5000ca; top: -10%; left: -10%;"></div>
+    <div class="nebula" style="width: 600px; height: 600px; background: #c0215a; top: 20%; right: -5%;"></div>
+    <div class="jupiter"></div>
+    <div class="mountains"></div>
+</div>
+
+<div id="photo-gallery">
+    <img src="foto1.jpeg" class="memory-photo p1" alt="1">
+    <img src="foto2.jpeg" class="memory-photo p2" alt="2">
+    <img src="foto3.jpeg" class="memory-photo p3" alt="3">
+    <img src="foto4.jpeg" class="memory-photo p4" alt="4">
+    <img src="foto5.jpeg" class="memory-photo p5" alt="5">
+    <img src="foto6.jpeg" class="memory-photo p6" alt="6">
+</div>
+
+<audio id="spaceSong" preload="auto" loop>
+    <source src="milo-mai.mp3" type="audio/mpeg">
+</audio>
+
+<div class="envelope-wrapper" id="wrapper">
+    <div class="envelope" id="envelope">
+        <div class="heart-seal">❤️</div>
+        <div class="to-text">Para Yadhara Karumi</div>
+    </div>
+
+    <div class="letter" id="letter">
+        <div class="page active" id="p1">
+            <h2>Mi vida contigo...</h2>
+            <p style="font-size: 0.9rem;">Desde el primer segundo supe que eras tú, en un mundo lleno de coincidencias, lo nuestro se siente como un destino escrito con tinta de oro, no solo eres una persona en mi vida, eres alguien muy muy especial, eres el eje sobre el cual mi mundo decidió girar con más fuerza llevamos este tiempo juntos y lo valoro cada segundo:</p>
+            <div class="timer-display" id="timer"></div>
+            <button class="btn-next" onclick="nextPage(event,2)">Siguiente →</button>
+        </div>
+
+        <div class="page" id="p2">
+            <h2>Nuestra historia</h2>
+            <p style="font-size: 0.85rem;">Eres mi paz y mi refugio. Mirar hacia atrás es darme cuenta de que nuestro viaje ha sido, sin duda, la aventura más increíble de mi existencia. Todavía puedo cerrar los ojos y revivir cada detalle de l miércoles 5 de noviembre, cuando el destino decidió que nuestras vidas se cruzaran en el bus de la universidad, donde nos pensabamos que nos ibamos a perder con esa cara de loca toda durmiente jsjs, desde ese instante, cada recuerdo y cada salida  se convirtieron en tesoros que guardo en mi corazon, valoro cada día a tu lado, porque en tus risas, en tus silencios y en esos detalles, buenos o malos, que te hacen ser tú, me quedo mirantote admirando lo afortunado que fui al tenerte en mi vida.  </p>
+            <button class="btn-next" onclick="nextPage(event,3)">Mira esto →</button>
+        </div>
+
+        <div class="page" id="p3">
+            <div style="font-size:1.5rem; text-align: center;">✨🌌✨🌹</div>
+            <div class="final-text" style="text-align: center;">¡TE AMO!</div>
+            <p style="text-align: center; font-size: 0.9rem;">En un mundo lleno de gente, mi elección siempre serás tú, hoy y cada mañana que nos regale el universo. Gracias por enseñarme lo que es el amor real. Te amo más de lo que las palabras alcanzan a explicar. Feliz San Valentín, mi niña…… Tú y yo hasta donde me lo permitas mi vida. <br><b>"Eres mi M.A.I"</b></p>
+            <div style="font-size:1.5rem; text-align: center;">💫🚀💋💕</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const START_DATE = new Date(2025, 11, 10, 15, 15, 45).getTime();
+
+/* ESTRELLAS */
+const universe = document.getElementById('universe');
+for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    const size = Math.random() * 2 + 0.5 + 'px';
+    s.style.width = size; s.style.height = size;
+    s.style.setProperty('--d', Math.random() * 5 + 2 + 's');
+    universe.appendChild(s);
+}
+
+const wrapper = document.getElementById('wrapper');
+const envelope = document.getElementById('envelope');
+const letter = document.getElementById('letter');
+const audio = document.getElementById('spaceSong');
+
+let opened = false;
+wrapper.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+    envelope.classList.add('open');
+    
+    // VOLUMEN SUAVE PARA MILO J
+    audio.volume = 0.3; 
+    audio.play().catch(e => console.log("Click para activar audio"));
+    
+    setTimeout(() => {
+        envelope.classList.add('hide');
+        letter.classList.add('reveal');
+    }, 600);
+    
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+});
+
+function nextPage(e, n) {
+    e.stopPropagation();
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('p' + n).classList.add('active');
+
+    if (n === 3) {
+        document.getElementById('photo-gallery').classList.add('visible');
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.7 }, colors: ['#ff4d6d', '#ffffff'] });
+    }
+}
+
+function updateTimer() {
+    const diff = Date.now() - START_DATE;
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor(diff % 86400000 / 3600000);
+    const m = Math.floor(diff % 3600000 / 60000);
+    const s = Math.floor(diff % 60000 / 1000);
+    document.getElementById('timer').textContent = `${d}d ${h}h ${m}m ${s}s`;
+}
+setInterval(updateTimer, 1000);
+updateTimer();
+</script>
+
+</body>
+</html>
